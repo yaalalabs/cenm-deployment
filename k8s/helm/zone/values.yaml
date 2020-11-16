@@ -10,20 +10,17 @@ image:
   tag: 1.4.0-zulu-openjdk8u242
   pullPolicy: Always
 
-# Database configuration
+# Configuration for postgresql database
 database:
-  driverClassName: "org.h2.Driver"
-  jdbcDriver: ""
-  url: "jdbc:h2:file:./h2/zone-persistence;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=10000;WRITE_DELAY=0;AUTO_SERVER_PORT=0"
-  user: "example-db-user"
-  password: "example-db-password"
+  driverClassName: "org.postgresql.Driver"
+  jdbcDriver: "/opt/cenm/drivers/postgresql-42.2.12.jar"
+  url: "jdbc:postgresql://<host>:<port>/zone-persistence"
+  user: "<admin_user>"
+  password: "<admin_pwd>"
   runMigration: true
 
 # Required parameter
 acceptLicense:
-
-# Volume size for h2/ directory
-volumeSizeZoneH2: 1Gi
 
 # Volume size for logs/ directory
 volumeSizeZoneLogs: 5Gi

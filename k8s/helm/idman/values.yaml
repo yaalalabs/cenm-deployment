@@ -23,16 +23,13 @@ volumeSizeIdmanEtc: 1Gi
 # Volume size for logs/ directory
 volumeSizeIdmanLogs: 10Gi
 
-# Volume size for h2/ directory
-volumeSizeIdmanH2: 10Gi
-
-# Configuration for database
+# Configuration for postgresql database
 database:
-  driverClassName: "org.h2.Driver"
-  jdbcDriver: ""
-  url: "jdbc:h2:file:./h2/identity-manager-persistence;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=10000;WRITE_DELAY=0;AUTO_SERVER_PORT=0"
-  user: "example-db-user"
-  password: "example-db-password"
+  driverClassName: "org.postgresql.Driver"
+  jdbcDriver: "/opt/cenm/drivers/postgresql-42.2.12.jar"
+  url: "jdbc:postgresql://<host>:<port>/identity-manager-persistence"
+  user: "<admin_user>"
+  password: "<admin_pwd>"
   runMigration: true
 
 # Required parameter

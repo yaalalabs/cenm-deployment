@@ -25,15 +25,3 @@ spec:
     requests:
       storage: {{ .Values.volumeSizeNmapLogs }}
 
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ .Values.prefix }}-nmap-h2
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: {{ .Values.storageClass }}
-  resources:
-    requests:
-      storage: {{ .Values.volumeSizeNmapH2 }}

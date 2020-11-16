@@ -1,0 +1,52 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ include "efs.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "efs.fullname" . }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ include "efs.fullname" . }}
+    spec:
+      serviceAccount: {{ include "efs.serviceAccountName" . }}
+      containers:
+        - name: {{ include "efs.fullname" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          env:
+            - name: FILE_SYSTEM_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "efs.fullname" . }}
+                  key: file.system.id
+            - name: AWS_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "efs.fullname" . }}
+                  key: aws.region
+            - name: PROVISIONER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "efs.fullname" . }}
+                  key: provisioner.name
+            - name: DNS_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "efs.fullname" . }}
+                  key: dns.name
+                  optional: true
+          volumeMounts:
+            - name: pv-volume
+              mountPath: /persistentvolumes
+      volumes:
+        - name: pv-volume
+          nfs:
+            server: {{ .Values.efs.id }}.efs.{{ .Values.efs.region }}.amazonaws.com
+            path: /

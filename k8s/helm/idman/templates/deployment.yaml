@@ -136,8 +136,6 @@ spec:
             subPath: identitymanager-init.conf
           - name: idman-logs
             mountPath: /opt/cenm/logs
-          - name: idman-h2
-            mountPath: /opt/cenm/h2
           - name: pki-certs-keys
             mountPath: /opt/cenm/DATA
         {{- if .Values.logsContainersEnabled }}
@@ -183,9 +181,6 @@ spec:
         - name: idman-etc
           persistentVolumeClaim:
             claimName: {{ .Values.prefix }}-idman-etc
-        - name: idman-h2
-          persistentVolumeClaim:
-            claimName: {{ .Values.prefix }}-idman-h2
         - name: idman-logs
           persistentVolumeClaim:
             claimName: {{ .Values.prefix }}-idman-logs
