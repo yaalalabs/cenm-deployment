@@ -15,7 +15,7 @@ authImage:
 database:
   driverClassName: "org.postgresql.Driver"
   jdbcDriver: "/opt/cenm/drivers/postgresql-42.2.12.jar"
-  url: "jdbc:postgresql://<host>:<port>/auth-persistence"
+  url: "jdbc:postgresql://<host>:<port>/auth_persistence"
   user: "<admin_user>"
   password: "<admin_pwd>"
   runMigration: true

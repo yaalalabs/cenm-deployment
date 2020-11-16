@@ -27,7 +27,7 @@ volumeSizeIdmanLogs: 10Gi
 database:
   driverClassName: "org.postgresql.Driver"
   jdbcDriver: "/opt/cenm/drivers/postgresql-42.2.12.jar"
-  url: "jdbc:postgresql://<host>:<port>/identity-manager-persistence"
+  url: "jdbc:postgresql://<host>:<port>/identity_manager_persistence"
   user: "<admin_user>"
   password: "<admin_pwd>"
   runMigration: true
