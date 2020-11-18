@@ -14,7 +14,7 @@ spec:
 {{- if (.Values.healthCheckNodePort) }}
   healthCheckNodePort: {{ .Values.healthCheckNodePort }}
 {{- end }}
-  externalTrafficPolicy: Local
+  externalTrafficPolicy: Cluster
   loadBalancerSourceRanges:
     - "10.1.0.0/16"
   type: {{ .Values.service.type }}

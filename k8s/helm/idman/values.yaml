@@ -136,7 +136,7 @@ storageClass: cenm
 
 # Local policy and healthCheckNodePort are set to get rid of logs pollution
 healthCheckNodePort: 0
-externalTrafficPolicy: Local
+externalTrafficPolicy: Cluster
 
 service:
   type: LoadBalancer
