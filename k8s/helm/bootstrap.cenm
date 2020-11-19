@@ -11,7 +11,8 @@ Usage: ${0##*/} ...
     -p|--prefix [prefix]        specify release prefix for all Helm charts
     -m|--mpv [version]          the minimum platform version for your network
     --ACCEPT_LICENSE [YES]      agree to the Licenses for Components deployed by the Bootstrapper.
-    -a|--auto                   complete script without further prompts to the user
+    -a|--auto                   complete script without further prompts to the 
+    -c|--cockroachdb            include cockroachdb cluster in the deployment
 EOF
 }
 
@@ -44,6 +45,10 @@ do
           ;;
         -a|--auto)
             auto=True
+            shift
+            ;;
+        -c|--cockroachdb)
+            deployCockroachDBCluster=True
             shift
             ;;
         --ACCEPT_LICENSE)
@@ -217,6 +222,26 @@ if [ -n "${notaryStartTime}" ]
 then
     elapsedTime=$((SECONDS - notaryStartTime))
     printf "Public IP allocation elapsed time: %s seconds (~ %s minutes)\n\n" "$((elapsedTime))" "$((elapsedTime/60%60))"
+fi
+
+if [ -z "${deployCockroachDBCluster}" ]
+then
+    announce "Bootstrapping CockroachDB cluster"
+    printf "COMMAND: helm install %s-cockroachdb cockroachdb"
+    helm install "${releasePrefix}"-cockroachdb cockroachdb
+
+    while [ -z "${cockroachDBPublicIP}" ]
+    do
+        cockroachDBPublicIP=$(kubectl get svc "${releasePrefix}"-cockroachdb -o jsonpath='{.status.loadBalancer.ingress[0].*}')
+        # if cockroachDBPublicIP has some value don't print anything on the screen
+        if [ -z "${cockroachDBPublicIP}" ]
+        then
+            printf "."
+            sleep 5
+        else
+            printf "\cockroachDBPublicIP = %s\n" "${cockroachDBPublicIP}"
+        fi
+    done
 fi
 
 announce "Bootstrapping Notary service"
