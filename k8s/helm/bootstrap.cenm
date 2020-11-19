@@ -224,7 +224,7 @@ then
     printf "Public IP allocation elapsed time: %s seconds (~ %s minutes)\n\n" "$((elapsedTime))" "$((elapsedTime/60%60))"
 fi
 
-if [ -z "${deployCockroachDBCluster}" ]
+if [ "${deployCockroachDBCluster}" == "True" ]
 then
     announce "Bootstrapping CockroachDB cluster"
     printf "COMMAND: helm install %s-cockroachdb cockroachdb"
