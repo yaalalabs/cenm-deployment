@@ -232,7 +232,7 @@ then
 
     while [ -z "${cockroachDBPublicIP}" ]
     do
-        cockroachDBPublicIP=$(kubectl get svc "${releasePrefix}"-cockroachdb -o jsonpath='{.status.loadBalancer.ingress[0].*}')
+        cockroachDBPublicIP=$(kubectl get svc "${releasePrefix}"-cockroachdb-public -o jsonpath='{.status.loadBalancer.ingress[0].*}')
         # if cockroachDBPublicIP has some value don't print anything on the screen
         if [ -z "${cockroachDBPublicIP}" ]
         then
