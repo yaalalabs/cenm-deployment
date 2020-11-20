@@ -62,6 +62,8 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
+  sourceRanges :
+    - "10.1.0.0/16"
   type: LoadBalancer
   port: 8080
 

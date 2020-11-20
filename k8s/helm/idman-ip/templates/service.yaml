@@ -15,8 +15,8 @@ spec:
   healthCheckNodePort: {{ .Values.healthCheckNodePort }}
 {{- end }}
   externalTrafficPolicy: Cluster
-  loadBalancerSourceRanges:
-    - "10.1.0.0/16"
+  loadBalancerSourceRanges: {{- range .Values.service.sourceRanges }}
+{{.}}{{- end }}
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}

@@ -24,8 +24,8 @@ spec:
       name: http
   selector:
     {{- include "nmap.selectorLabels" . | nindent 4 }}
-  loadBalancerSourceRanges:
-    - "10.1.0.0/16"
+  loadBalancerSourceRanges: {{- range .Values.service.sourceRanges }}
+{{.}}{{- end }}
 
 ---
 apiVersion: v1

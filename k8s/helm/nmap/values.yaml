@@ -117,6 +117,8 @@ storageClass: cenm
 healthCheckNodePort: 0
 
 service:
+  sourceRanges :
+    - "10.1.0.0/16"
   type: LoadBalancer
   port: 10000
 

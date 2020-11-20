@@ -22,8 +22,8 @@ metadata:
 {{- end }}
 spec:
   type: {{ .Values.service.public.type | quote }}
-  loadBalancerSourceRanges:
-    - "10.1.0.0/16"
+  loadBalancerSourceRanges: {{- range .Values.service.sourceRanges }}
+{{.}}{{- end }}
   ports:
   {{- $ports := .Values.service.ports }}
     # The main port, served by gRPC, serves Postgres-flavor SQL, inter-node

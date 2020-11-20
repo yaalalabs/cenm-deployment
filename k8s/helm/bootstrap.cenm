@@ -13,6 +13,13 @@ Usage: ${0##*/} ...
     --ACCEPT_LICENSE [YES]      agree to the Licenses for Components deployed by the Bootstrapper.
     -a|--auto                   complete script without further prompts to the 
     -c|--cockroachdb            include cockroachdb cluster in the deployment
+    -ad|--auth_db               provide auth database url
+    -zd|--zone_db               provide zone database url
+    -id|--idman_db              provide idman database url
+    -nd|--nmap_db               provide nmap database url
+    -du|--db_admin              provide database admin user password
+    -dp|--db_pwd                provide database admin password
+    -ls|--lb_source             provide load balancer source range          
 EOF
 }
 
@@ -49,6 +56,38 @@ do
             ;;
         -c|--cockroachdb)
             deployCockroachDBCluster=True
+            shift
+            ;;
+        -c|--cockroachdb)
+            deployCockroachDBCluster=True
+            shift
+            ;;
+        -ad|--auth_db)
+            authDBHost="${2}"
+            shift
+            ;;
+        -zd|--zone_db)
+            zoneDBHost="${2}"
+            shift
+            ;;
+        -id|--idman_db)
+            idmanDBHost="${2}"
+            shift
+            ;;
+        -nd|--nmap_db)
+            nmapDBHost="${2}"
+            shift
+            ;;
+        -du|--db_admin)
+            dbAdminUser="${2}"
+            shift
+            ;;
+        -dp|--db_pwd)
+            dbAdminPassword="${2}"
+            shift
+            ;;
+        -ls|--lb_source)
+            lbSourceRanges="${2}"
             shift
             ;;
         --ACCEPT_LICENSE)
@@ -178,24 +217,24 @@ printf "COMMAND: helm install %s-pki pki --set idmanPublicIP=%s --set prefix=%s 
 helm install "${releasePrefix}"-pki pki --set idmanPublicIP="${idmanPublicIP}" --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set hsm="${hsm}"
 
 announce "Bootstrapping CENM Auth service"
-printf "COMMAND: helm install %s-auth auth --set prefix=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}"
-helm install "${releasePrefix}"-auth auth --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}"
+printf "COMMAND: helm install %s-auth auth --set prefix=%s --set acceptLicense=%s --set database.url=%s --set database.user=%s --set database.password=<hidden>\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}" "${authDBHost}" "${dbAdminUser}"
+helm install "${releasePrefix}"-auth auth --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set database.url="${authDBHost}" --set database.user="${dbAdminUser}" --set database.password="${dbAdminPassword}"
 
 announce "Bootstrapping CENM Gateway service"
 printf "COMMAND: helm install %s-gateway gateway --set prefix=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}"
 helm install "${releasePrefix}"-gateway gateway --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}"
 
 announce "Bootstrapping CENM Zone service"
-printf "COMMAND: helm install %s-zone zone --set prefix=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}"
-helm install "${releasePrefix}"-zone zone --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}"
+printf "COMMAND: helm install %s-zone zone --set prefix=%s --set acceptLicense=%s --set database.url=%s --set database.user=%s --set database.password=<hidden>\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}" "${zoneDBHost}" "${dbAdminUser}"
+helm install "${releasePrefix}"-zone zone --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set database.url="${zoneDBHost}" --set database.user="${dbAdminUser}" --set database.password="${dbAdminPassword}"
 
 announce "Bootstrapping CENM Signer service"
 printf "COMMAND: helm install %s-signer signer --set idmanPublicIP=%s --set prefix=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${idmanPublicIP}" "${releasePrefix}" "${acceptLicense}"
 helm install "${releasePrefix}"-signer signer --set idmanPublicIP="${idmanPublicIP}" --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set hsm="${hsm}"
 
 announce "Bootstrapping CENM Identity Manager service"
-printf "COMMAND: helm install %s-idman idman --set prefix=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}"
-helm install "${releasePrefix}"-idman idman --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}"
+printf "COMMAND: helm install %s-idman idman --set prefix=%s --set acceptLicense=%s --set database.url=%s --set database.user=%s --set database.password=<hidden>\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}" "${idmanDBHost}" "${dbAdminUser}"
+helm install "${releasePrefix}"-idman idman --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set database.url="${idmanDBHost}" --set database.user="${dbAdminUser}" --set database.password="${dbAdminPassword}"
 
 if [ "${notaryServiceAllocate}" == "true" ]
 then
@@ -249,8 +288,8 @@ printf "COMMAND: helm install %s-notary notary --set notaryPublicIP=%s --set pre
 helm install "${releasePrefix}"-notary notary --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}"
 
 announce "Bootstrapping CENM Network Map service"
-printf "COMMAND: helm install %s-nmap nmap --set prefix=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}" 
-helm install "${releasePrefix}"-nmap nmap --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}"
+printf "COMMAND: helm install %s-nmap nmap --set prefix=%s --set acceptLicense=%s --set database.url=%s --set database.user=%s --set database.password=<hidden>\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}" "${nmapDBHost}" "${dbAdminUser}"
+helm install "${releasePrefix}"-nmap nmap --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set database.url="${nmapDBHost}" --set database.user="${dbAdminUser}" --set database.password="${dbAdminPassword}"
 
 announce "Waiting until cloud provider has allocated public IP for CLI endpoint (it may take a few minutes)"
 gatewayStartTime=${SECONDS}
