@@ -15,7 +15,9 @@ spec:
   healthCheckNodePort: {{ .Values.healthCheckNodePort }}
 {{- end }}
   externalTrafficPolicy: Cluster
-  loadBalancerSourceRanges: {{ .Values.service.sourceRanges }}
+  loadBalancerSourceRanges: {{- range .Values.service.sourceRanges }}
+    - {{ . }}
+  {{- end }}
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.p2pPort }}
