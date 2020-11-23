@@ -216,7 +216,7 @@ statefulset:
       memory: 512Mi
 
 service:
-  sourceRanges :
+  sourceRanges:
     - "10.1.0.0/16"
   ports:
     # You can set a different external and internal gRPC ports and their name.

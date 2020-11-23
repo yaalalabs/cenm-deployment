@@ -6,7 +6,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 service:
-  sourceRanges :
+  sourceRanges:
     - "10.1.0.0/16"
   type: LoadBalancer
   p2pPort: 10002

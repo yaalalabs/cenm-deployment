@@ -46,9 +46,9 @@ do
             shift
             ;;
         -m|--mpv)
-          minimumPV="${2}"
-          shift
-          shift
+            minimumPV="${2}"
+            shift
+            shift
           ;;
         -a|--auto)
             auto=True
@@ -57,44 +57,48 @@ do
         -c|--cockroachdb)
             deployCockroachDBCluster=True
             shift
-            ;;
-        -c|--cockroachdb)
-            deployCockroachDBCluster=True
             shift
             ;;
         -ad|--auth_db)
             authDBHost="${2}"
             shift
+            shift
             ;;
         -zd|--zone_db)
             zoneDBHost="${2}"
+            shift
             shift
             ;;
         -id|--idman_db)
             idmanDBHost="${2}"
             shift
+            shift
             ;;
         -nd|--nmap_db)
             nmapDBHost="${2}"
+            shift
             shift
             ;;
         -du|--db_admin)
             dbAdminUser="${2}"
             shift
+            shift
             ;;
         -dp|--db_pwd)
             dbAdminPassword="${2}"
             shift
+            shift
             ;;
         -ls|--lb_source)
-            lbSourceRanges="${2}"
+            lbSourceRanges="{${2}}"
+            shift
             shift
             ;;
         --ACCEPT_LICENSE)
-          acceptLicense="${2}"
-          shift
-          shift
-          ;;
+            acceptLicense="${2}"
+            shift
+            shift
+            ;;
         *)
             print_help
             exit
@@ -165,8 +169,8 @@ then
     idmanServiceAllocate=true
     idmanServiceName="${releasePrefix}"-idman-ip
     announce "Triggering public IP allocation for Identity Manager"
-    printf "COMMAND: helm install %s-idman-ip idman-ip --set prefix=%s\n\n" "${releasePrefix}" "${releasePrefix}"
-    helm install "${releasePrefix}"-idman-ip idman-ip --set prefix="${releasePrefix}"
+    printf "COMMAND: helm install %s-idman-ip idman-ip --set prefix=%s --set service.sourceRanges=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${lbSourceRanges}"
+    helm install "${releasePrefix}"-idman-ip idman-ip --set prefix="${releasePrefix}" --set service.sourceRanges="${lbSourceRanges}"
 fi
 
 if [ -z "${notaryServiceName}" ]
@@ -174,8 +178,8 @@ then
     notaryServiceAllocate=true
     notaryServiceName="${releasePrefix}"-notary-ip
     announce "Triggering public IP allocation for Notary"
-    printf "COMMAND: helm install %s-notary-ip notary-ip --set prefix=%s\n\n" "${releasePrefix}" "${releasePrefix}"
-    helm install "${releasePrefix}"-notary-ip notary-ip --set prefix="${releasePrefix}"
+    printf "COMMAND: helm install %s-notary-ip notary-ip --set prefix=%s --set service.sourceRanges=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${lbSourceRanges}"
+    helm install "${releasePrefix}"-notary-ip notary-ip --set prefix="${releasePrefix}" --set service.sourceRanges="${lbSourceRanges}"
 fi
 
 # Run HSM helm chart first to give more time for IP allocation for Identity Manager above
@@ -221,8 +225,8 @@ printf "COMMAND: helm install %s-auth auth --set prefix=%s --set acceptLicense=%
 helm install "${releasePrefix}"-auth auth --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set database.url="${authDBHost}" --set database.user="${dbAdminUser}" --set database.password="${dbAdminPassword}"
 
 announce "Bootstrapping CENM Gateway service"
-printf "COMMAND: helm install %s-gateway gateway --set prefix=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}"
-helm install "${releasePrefix}"-gateway gateway --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}"
+printf "COMMAND: helm install %s-gateway gateway --set prefix=%s --set acceptLicense=%s --set service.sourceRanges=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}" "${lbSourceRanges}"
+helm install "${releasePrefix}"-gateway gateway --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set service.sourceRanges="${lbSourceRanges}"
 
 announce "Bootstrapping CENM Zone service"
 printf "COMMAND: helm install %s-zone zone --set prefix=%s --set acceptLicense=%s --set database.url=%s --set database.user=%s --set database.password=<hidden>\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}" "${zoneDBHost}" "${dbAdminUser}"
@@ -266,8 +270,8 @@ fi
 if [ "${deployCockroachDBCluster}" == "True" ]
 then
     announce "Bootstrapping CockroachDB cluster"
-    printf "COMMAND: helm install %s-cockroachdb cockroachdb"
-    helm install "${releasePrefix}"-cockroachdb cockroachdb
+    printf "COMMAND: helm install %s-cockroachdb cockroachdb --set service.sourceRanges=%s\n\n" "${lbSourceRanges}"
+    helm install "${releasePrefix}"-cockroachdb cockroachdb --set service.sourceRanges="${lbSourceRanges}"
 
     while [ -z "${cockroachDBPublicIP}" ]
     do
@@ -288,8 +292,8 @@ printf "COMMAND: helm install %s-notary notary --set notaryPublicIP=%s --set pre
 helm install "${releasePrefix}"-notary notary --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}"
 
 announce "Bootstrapping CENM Network Map service"
-printf "COMMAND: helm install %s-nmap nmap --set prefix=%s --set acceptLicense=%s --set database.url=%s --set database.user=%s --set database.password=<hidden>\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}" "${nmapDBHost}" "${dbAdminUser}"
-helm install "${releasePrefix}"-nmap nmap --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set database.url="${nmapDBHost}" --set database.user="${dbAdminUser}" --set database.password="${dbAdminPassword}"
+printf "COMMAND: helm install %s-nmap nmap --set prefix=%s --set acceptLicense=%s --set database.url=%s --set database.user=%s --set database.password=<hidden> --set service.sourceRanges=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}" "${nmapDBHost}" "${dbAdminUser}" "${lbSourceRanges}"
+helm install "${releasePrefix}"-nmap nmap --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set database.url="${nmapDBHost}" --set database.user="${dbAdminUser}" --set database.password="${dbAdminPassword}" --set service.sourceRanges="${lbSourceRanges}"
 
 announce "Waiting until cloud provider has allocated public IP for CLI endpoint (it may take a few minutes)"
 gatewayStartTime=${SECONDS}
