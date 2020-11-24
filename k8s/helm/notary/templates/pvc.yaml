@@ -15,19 +15,6 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.prefix }}-notary-nodeinfo
-spec:
-  accessModes:
-    - ReadWriteMany
-  storageClassName: {{ .Values.storageClassShared }}
-  resources:
-    requests:
-      storage: {{ .Values.volumeSizeNotaryNodeinfo }}
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
   name: {{ .Values.prefix }}-notary-certificates
 spec:
   accessModes:

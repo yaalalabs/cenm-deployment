@@ -72,6 +72,7 @@ dataSourceProperties:
 # Type of Notary
 notary:
   validating: false
+  serviceLegalName: "O=HA Notary Service,L=Zurich,C=CH"
 
 # Public IP for Notary (required parameter)
 notaryPublicIP:

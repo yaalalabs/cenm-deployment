@@ -45,7 +45,7 @@ spec:
             mountPath: /opt/corda/certificates
           - name: notary-nodeinfo
             mountPath: /opt/corda/additional-node-infos
-          - name: notary-logs
+          - name: notary-service-logs
             mountPath: /opt/corda/logs
           - name: notary-service-h2
             mountPath: /opt/corda/h2
@@ -53,7 +53,7 @@ spec:
             mountPath: /opt/corda/DATA
       restartPolicy: OnFailure
       volumes:
-      - name: notary-conf
+      - name: notary-service-conf
         configMap:
           name: {{ .Values.prefix }}-notary-service-conf
       - name: notary-service-certificates
