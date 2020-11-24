@@ -1,0 +1,85 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "notary-service.fullname" . }}
+spec:
+  backoffLimit: {{ .Values.backoffLimit }}
+  template:
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: notary-registration
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ required "notary[registration]: missing value for .Values.dockerImage.name" .Values.dockerImage.name }}:{{ required "notary[registration]: missing value for .Values.dockerImage.tag" .Values.dockerImage.tag }}"
+          imagePullPolicy: {{ .Values.dockerImage.pullPolicy }}
+          command: ["/bin/bash", "-c"]
+          args:
+          - |-
+            ls -alr
+            cp /opt/corda/CM-FILES/node.conf .
+            cp /opt/corda/CM-FILES/network-parameters-initial.conf /opt/corda/additional-node-infos/
+            mkdir bin
+            cp /opt/corda/CM-FILES/*.sh bin/
+            chmod +x bin/*
+            bin/notary-service-initial-registration.sh
+            cat /opt/corda/additional-node-infos/network-parameters-initial.conf
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+          - name: notary-service-conf
+            mountPath: /opt/corda/CM-FILES/node.conf
+            subPath: notary.conf
+          - name: notary-service-conf
+            mountPath: /opt/corda/CM-FILES/notary-service-initial-registration.sh
+            subPath: notary-service-initial-registration.sh
+          - name: notary-service-conf
+            mountPath: /opt/corda/CM-FILES/network-parameters-initial.conf
+            subPath: network-parameters-initial.conf
+          - name: notary-service-certificates
+            mountPath: /opt/corda/certificates
+          - name: notary-nodeinfo
+            mountPath: /opt/corda/additional-node-infos
+          - name: notary-logs
+            mountPath: /opt/corda/logs
+          - name: notary-service-h2
+            mountPath: /opt/corda/h2
+          - name: pki-certs-keys
+            mountPath: /opt/corda/DATA
+      restartPolicy: OnFailure
+      volumes:
+      - name: notary-conf
+        configMap:
+          name: {{ .Values.prefix }}-notary-service-conf
+      - name: notary-service-certificates
+        persistentVolumeClaim:
+          claimName: {{ .Values.prefix }}-notary-service-certificates
+      - name: notary-service-logs
+        persistentVolumeClaim:
+          claimName: {{ .Values.prefix }}-notary-service-logs
+      - name: notary-nodeinfo
+        persistentVolumeClaim:
+          claimName: {{ .Values.prefix }}-notary-nodeinfo
+      - name: notary-service-h2
+        persistentVolumeClaim:
+          claimName: {{ .Values.prefix }}-notary-service-h2
+      - name: pki-certs-keys
+        persistentVolumeClaim:
+          claimName: {{ .Values.prefix }}-pki-certs-keys
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

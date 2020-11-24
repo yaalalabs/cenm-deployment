@@ -34,11 +34,11 @@ spec:
           args:
           - |-
             ls -alr
+            cp service-certificates/* certificates/
             cp CM-FILES/notary.conf etc/
             cp CM-FILES/*.sh bin/
             chmod +x bin/*
             bin/notary-initial-registration.sh
-            bin/create-network-parameters-file.sh
           volumeMounts:
           - name: notary-conf
             mountPath: /opt/cenm/CM-FILES/notary.conf
@@ -47,15 +47,14 @@ spec:
             mountPath: /opt/cenm/CM-FILES/notary-initial-registration.sh
             subPath: notary-initial-registration.sh
           - name: notary-conf
-            mountPath: /opt/cenm/CM-FILES/create-network-parameters-file.sh
-            subPath: create-network-parameters-file.sh
-          - name: notary-conf
             mountPath: /opt/cenm/CM-FILES/run.sh
             subPath: run.sh
           - name: notary-etc
             mountPath: /opt/cenm/etc
           - name: notary-certificates
             mountPath: /opt/cenm/certificates
+          - name: notary-service-certificates
+            mountPath: /opt/cenm/service-certificates
           - name: notary-nodeinfo
             mountPath: /opt/cenm/additional-node-infos
           - name: notary-logs
@@ -142,6 +141,9 @@ spec:
       - name: notary-etc
         persistentVolumeClaim:
           claimName: {{ .Values.prefix }}-notary-etc
+      - name: notary-service-certificates
+        persistentVolumeClaim:
+          claimName: {{ .Values.prefix }}-notary-service-certificates
       - name: notary-certificates
         persistentVolumeClaim:
           claimName: {{ .Values.prefix }}-notary-certificates

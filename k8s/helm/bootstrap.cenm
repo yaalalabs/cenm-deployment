@@ -288,6 +288,10 @@ then
 fi
 
 announce "Bootstrapping Notary service"
+printf "COMMAND: helm install %s-notary-service notary-service --set notaryPublicIP=%s --set prefix=%s --set mpv=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${notaryPublicIP}" "${releasePrefix}" "${minimumPV}" "${acceptLicense}"
+helm install "${releasePrefix}"-notary-service notary-service --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}"
+
+announce "Bootstrapping Notary worker"
 printf "COMMAND: helm install %s-notary notary --set notaryPublicIP=%s --set prefix=%s --set mpv=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${notaryPublicIP}" "${releasePrefix}" "${minimumPV}" "${acceptLicense}"
 helm install "${releasePrefix}"-notary notary --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}"
 
