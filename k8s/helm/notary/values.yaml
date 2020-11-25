@@ -73,6 +73,8 @@ dataSourceProperties:
 notary:
   validating: false
   serviceLegalName: "O=HA Notary Service,L=Zurich,C=CH"
+  serviceDataSource: "jdbc:postgresql://10.1.59.77:26257/corda"
+  worker: 1
 
 # Public IP for Notary (required parameter)
 notaryPublicIP:

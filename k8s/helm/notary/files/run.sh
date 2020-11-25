@@ -14,7 +14,7 @@ then
     echo
     echo "CENM: starting Notary node ..."
     echo
-    java -jar {{ .Values.jarPath }}/corda.jar -f {{ .Values.configPath }}/notary.conf
+    java -Dcorda.cordappSignerKeyFingerprintBlacklist.0={{ .Values.cordapps.signerKey }} -jar {{ .Values.jarPath }}/corda.jar -f {{ .Values.configPath }}/notary.conf
     EXIT_CODE=${?}
 else
     echo "Missing notary jar file in {{ .Values.jarPath }} directory:"

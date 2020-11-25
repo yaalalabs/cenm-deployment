@@ -291,9 +291,14 @@ announce "Bootstrapping Notary service"
 printf "COMMAND: helm install %s-notary-service notary-service --set notaryPublicIP=%s --set prefix=%s --set mpv=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${notaryPublicIP}" "${releasePrefix}" "${minimumPV}" "${acceptLicense}"
 helm install "${releasePrefix}"-notary-service notary-service --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}"
 
-announce "Bootstrapping Notary worker"
-printf "COMMAND: helm install %s-notary notary --set notaryPublicIP=%s --set prefix=%s --set mpv=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${notaryPublicIP}" "${releasePrefix}" "${minimumPV}" "${acceptLicense}"
-helm install "${releasePrefix}"-notary notary --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}"
+announce "Bootstrapping Notary workers"
+for worker in {1..2}
+do
+    printf "COMMAND: helm install %s-notary notary --set notaryPublicIP=%s --set prefix=%s --set mpv=%s --set acceptLicense=%s --set notary.worker=%s\n\n" "${releasePrefix}" "${notaryPublicIP}" "${releasePrefix}" "${minimumPV}" "${acceptLicense}" "${worker}"
+    helm install "${releasePrefix}"-notary notary --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}" --set notary.worker="${worker}"
+   echo "Welcome $i times"
+done
+
 
 announce "Bootstrapping CENM Network Map service"
 printf "COMMAND: helm install %s-nmap nmap --set prefix=%s --set acceptLicense=%s --set database.url=%s --set database.user=%s --set database.password=<hidden> --set service.sourceRanges=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}" "${nmapDBHost}" "${dbAdminUser}" "${lbSourceRanges}"
