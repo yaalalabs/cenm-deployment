@@ -20,24 +20,31 @@ cat {{ .Values.nmapJar.configPath }}/network-parameters-initial.conf
 cat {{ .Values.nmapJar.configPath }}/networkmap-init.conf
 
 echo "Setting initial network parameters ..."
-java -jar {{ .Values.nmapJar.path }}/networkmap.jar \
+
+EXIT_CODE=1
+
+until [ "${EXIT_CODE}" -eq "0" ]
+do
+    echo "Trying to set network parameters ..."
+    java -jar {{ .Values.nmapJar.path }}/networkmap.jar \
 	-f {{ .Values.nmapJar.configPath }}/networkmap-init.conf \
 	--set-network-parameters {{ .Values.nmapJar.configPath }}/network-parameters-initial.conf \
 	--network-truststore DATA/trust-stores/network-root-truststore.jks \
 	--truststore-password trust-store-password \
 	--root-alias cordarootca
+    EXIT_CODE=${?}
+    if [ "${EXIT_CODE}" -ne "0" ]
+    then
+        echo "Network Map: setting network parameters failed - exit code: ${EXIT_CODE} (error)"
+        echo
+        echo "Going to sleep for the requested {{ .Values.sleepTimeAfterError }} seconds to let you log in and investigate."
+        echo
+        sleep {{ .Values.sleepTimeAfterError }}
+    else
+        break
+    fi
+done
 
-EXIT_CODE=${?}
-
-if [ "${EXIT_CODE}" -ne "0" ]
-then
-    echo
-    echo "Network Map: setting network parameters failed - exit code: ${EXIT_CODE} (error)"
-    echo
-    echo "Going to sleep for the requested {{ .Values.sleepTimeAfterError }} seconds to let you log in and investigate."
-    echo
-    sleep {{ .Values.sleepTimeAfterError }}
-else
     echo
     echo "Network Map: initial network parameters have been set."
     echo "No errors."
@@ -52,7 +59,5 @@ parametersUpdate {
     updateDeadline = "[updateDeadline]"
 }
 EOF
-
-fi
 
 exit ${EXIT_CODE}

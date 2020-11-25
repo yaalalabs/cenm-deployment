@@ -34,7 +34,6 @@ spec:
           args:
           - |-
             ls -alr
-            cp service-certificates/* certificates/
             cp CM-FILES/notary.conf etc/
             cp CM-FILES/*.sh bin/
             chmod +x bin/*

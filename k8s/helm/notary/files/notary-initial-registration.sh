@@ -53,6 +53,8 @@ do
         echo
         echo "Notary: running initial registration ..."
         echo
+        cp service-certificates/*.jks certificates/
+        echo
         java -Dcapsule.jvm.args='-Xmx{{ .Values.cordaJarMx }}G' -jar {{ .Values.jarPath }}/corda.jar \
           initial-registration \
         --config-file={{ .Values.configPath }}/notary.conf \
