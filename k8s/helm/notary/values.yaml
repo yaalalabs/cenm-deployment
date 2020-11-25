@@ -168,3 +168,6 @@ storageClassShared: cenm-shared
 storageClass: cenm
 
 healthCheckNodePort: 0
+
+cordapps:
+  signerKey: "0000000000000000000000000000000000000000000000000000000000000000"

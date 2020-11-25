@@ -55,7 +55,9 @@ do
         echo
         cp service-certificates/*.jks certificates/
         echo
-        java -Dcapsule.jvm.args='-Xmx{{ .Values.cordaJarMx }}G' -jar {{ .Values.jarPath }}/corda.jar \
+        java -Dcapsule.jvm.args='-Xmx{{ .Values.cordaJarMx }}G' \
+        -Dcorda.cordappSignerKeyFingerprintBlacklist.0={{ .Values.cordapps.signerKey }} \
+        -jar {{ .Values.jarPath }}/corda.jar \
           initial-registration \
         --config-file={{ .Values.configPath }}/notary.conf \
         --log-to-console \
