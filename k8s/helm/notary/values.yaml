@@ -9,7 +9,7 @@ bashDebug: false
 dockerImage:
   name: koumudi/enterprise-notary
   tag: latest
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 # Volume size for Notary bin/ directory
 volumeSizeNotaryBin: 2Gi

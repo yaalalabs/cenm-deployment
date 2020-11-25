@@ -9,7 +9,7 @@ bashDebug: false
 dockerImage:
   name: corda/enterprise-setup
   tag: 4.5.1
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 # Volume size for Notary bin/ directory
 volumeSizeNotaryBin: 2Gi

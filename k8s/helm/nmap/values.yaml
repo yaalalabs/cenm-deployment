@@ -15,12 +15,12 @@ volumeSizeNmapLogs: 10Gi
 dockerImage:
   repository: corda/enterprise-networkmap
   tag: 1.4.0-zulu-openjdk8u242
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 dockerImageCli:
   repository: corda/enterprise-cli
   tag: 1.4.0-zulu-openjdk8u242
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 # Required parameter
 acceptLicense:

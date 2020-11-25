@@ -58,7 +58,7 @@ libFolder: /tmp
 hsmImage:
   repository: alpine
   tag: latest
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 backoffLimit: 4
 

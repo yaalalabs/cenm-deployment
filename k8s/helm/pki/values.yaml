@@ -15,7 +15,7 @@ volumeSizePkiEtc: 1Gi
 pkiImage:
   repository: corda/enterprise-pkitool
   tag: 1.4.0-zulu-openjdk8u242
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 pkiJar:
   # value for Java -Xmx

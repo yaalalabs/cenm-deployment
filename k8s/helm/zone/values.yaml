@@ -8,7 +8,7 @@ bashDebug: false
 image:
   repository: corda/enterprise-zone
   tag: 1.4.0-zulu-openjdk8u242
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 # Configuration for postgresql database
 database:
