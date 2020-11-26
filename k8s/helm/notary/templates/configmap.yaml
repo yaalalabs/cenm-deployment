@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.prefix }}-notary-conf
+  name: {{ .Values.prefix }}-{{ .Values.notary.worker }}-notary-conf
   labels:
     {{ include "notary.labels" . | nindent 4 }}
 data:

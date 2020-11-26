@@ -49,24 +49,41 @@ while true
 do
     if [ ! -f certificates/nodekeystore.jks ] || [ ! -f certificates/sslkeystore.jks ] || [ ! -f certificates/truststore.jks ]
     then
-        sleep 30 # guards against "Failed to find the request with id: ... in approved or done requests. This might happen when the Identity Manager was restarted during the approval process."
-        echo
-        echo "Notary: running initial registration ..."
-        echo
-        cp service-certificates/*.jks certificates/
-        echo
-        java -Dcapsule.jvm.args='-Xmx{{ .Values.cordaJarMx }}G' \
-        -Dcorda.cordappSignerKeyFingerprintBlacklist.0={{ .Values.cordapps.signerKey }} \
-        -jar {{ .Values.jarPath }}/corda.jar \
-          initial-registration \
-        --config-file={{ .Values.configPath }}/notary.conf \
-        --log-to-console \
-        --network-root-truststore ${NETWORK_ROOT_TRUSTSTORE}  \
-        --network-root-truststore-password trust-store-password
-        EXIT_CODE=${?}
-        echo
-        echo "Initial registration exit code: ${EXIT_CODE}"
-        echo
+        sleep 60 # guards against "Failed to find the request with id: ... in approved or done requests. This might happen when the Identity Manager was restarted during the approval process."
+        
+        EXIT_CODE=1
+
+        until [ "${EXIT_CODE}" -eq "0" ]
+        do
+            echo
+            echo "Notary: running initial registration ..."
+            echo
+            cp service-certificates/*.jks certificates/
+            echo
+            java -Dcapsule.jvm.args='-Xmx{{ .Values.cordaJarMx }}G' \
+            -Dcorda.cordappSignerKeyFingerprintBlacklist.0={{ .Values.cordapps.signerKey }} \
+            -jar {{ .Values.jarPath }}/corda.jar \
+            initial-registration \
+            --config-file={{ .Values.configPath }}/notary.conf \
+            --log-to-console \
+            --network-root-truststore ${NETWORK_ROOT_TRUSTSTORE}  \
+            --network-root-truststore-password trust-store-password
+            EXIT_CODE=${?}
+
+            if [ "${EXIT_CODE}" -ne "0" ]
+            then
+                echo
+                echo "Initial registration failed : exit code: ${EXIT_CODE}"
+                echo
+                sleep 30
+            else
+                echo
+                echo "Initial registration exit code: ${EXIT_CODE}"
+                echo
+                break
+            fi
+        done
+
     else
         echo
         echo "Notary: already registered to Identity Manager - skipping initial registration."

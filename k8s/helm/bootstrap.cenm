@@ -267,35 +267,32 @@ then
     printf "Public IP allocation elapsed time: %s seconds (~ %s minutes)\n\n" "$((elapsedTime))" "$((elapsedTime/60%60))"
 fi
 
-if [ "${deployCockroachDBCluster}" == "True" ]
-then
-    announce "Bootstrapping CockroachDB cluster"
-    printf "COMMAND: helm install %s-cockroachdb cockroachdb --set service.sourceRanges=%s\n\n" "${lbSourceRanges}"
-    helm install "${releasePrefix}"-cockroachdb cockroachdb --set service.sourceRanges="${lbSourceRanges}"
+announce "Bootstrapping CockroachDB cluster"
+printf "COMMAND: helm install %s-cockroachdb cockroachdb --set service.sourceRanges=%s\n\n" "${lbSourceRanges}"
+helm install "${releasePrefix}"-cockroachdb cockroachdb --set service.sourceRanges="${lbSourceRanges}"
 
-    while [ -z "${cockroachDBPublicIP}" ]
-    do
-        cockroachDBPublicIP=$(kubectl get svc "${releasePrefix}"-cockroachdb-public -o jsonpath='{.status.loadBalancer.ingress[0].*}')
-        # if cockroachDBPublicIP has some value don't print anything on the screen
-        if [ -z "${cockroachDBPublicIP}" ]
-        then
-            printf "."
-            sleep 5
-        else
-            printf "\cockroachDBPublicIP = %s\n" "${cockroachDBPublicIP}"
-        fi
-    done
-fi
+while [ -z "${cockroachDBPublicIP}" ]
+do
+    cockroachDBPublicIP=$(kubectl get svc "${releasePrefix}"-cockroachdb-public -o jsonpath='{.status.loadBalancer.ingress[0].*}')
+    # if cockroachDBPublicIP has some value don't print anything on the screen
+    if [ -z "${cockroachDBPublicIP}" ]
+    then
+        printf "."
+        sleep 5
+    else
+        printf "\cockroachDBPublicIP = %s\n" "${cockroachDBPublicIP}"
+    fi
+done
 
 announce "Bootstrapping Notary service"
-printf "COMMAND: helm install %s-notary-service notary-service --set notaryPublicIP=%s --set prefix=%s --set mpv=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${notaryPublicIP}" "${releasePrefix}" "${minimumPV}" "${acceptLicense}"
-helm install "${releasePrefix}"-notary-service notary-service --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}"
+printf "COMMAND: helm install %s-notary-service notary-service --set notaryPublicIP=%s --set prefix=%s --set mpv=%s --set acceptLicense=%s --set cockroachDB.host=%s\n\n" "${releasePrefix}" "${notaryPublicIP}" "${releasePrefix}" "${minimumPV}" "${acceptLicense}" "${cockroachDBPublicIP}"
+helm install "${releasePrefix}"-notary-service notary-service --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}" --set cockroachDB.host="${cockroachDBPublicIP}"
 
 announce "Bootstrapping Notary workers"
 for worker in {1..2}
 do
-    printf "COMMAND: helm install %s-notary-%s notary --set notaryPublicIP=%s --set prefix=%s --set mpv=%s --set acceptLicense=%s --set notary.worker=%s\n\n" "${releasePrefix}" "${notaryPublicIP}" "${releasePrefix}" "${minimumPV}" "${acceptLicense}" "${worker}"
-    helm install "${releasePrefix}"-notary-"${worker}" notary --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}" --set notary.worker="${worker}"
+    printf "COMMAND: helm install %s-notary-%s notary --set notaryPublicIP=%s --set prefix=%s --set mpv=%s --set acceptLicense=%s --set notary.worker=%s --set cockroachDB.host=%s\n\n" "${releasePrefix}" "${notaryPublicIP}" "${releasePrefix}" "${minimumPV}" "${acceptLicense}" "${worker}" "${cockroachDBPublicIP}"
+    helm install "${releasePrefix}"-"${worker}"-notary notary --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}" --set notary.worker="${worker}" --set cockroachDB.host="${cockroachDBPublicIP}"
    echo "Welcome $i times"
 done
 

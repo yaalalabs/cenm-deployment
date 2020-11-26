@@ -136,25 +136,25 @@ spec:
       volumes:
       - name: notary-conf
         configMap:
-          name: {{ .Values.prefix }}-notary-conf
+          name: {{ .Values.prefix }}-{{ .Values.notary.worker }}-notary-conf
       - name: notary-etc
         persistentVolumeClaim:
-          claimName: {{ .Values.prefix }}-notary-etc
+          claimName: {{ .Values.prefix }}-{{ .Values.notary.worker }}-notary-etc
       - name: notary-service-certificates
         persistentVolumeClaim:
           claimName: {{ .Values.prefix }}-notary-service-certificates
       - name: notary-certificates
         persistentVolumeClaim:
-          claimName: {{ .Values.prefix }}-notary-certificates
+          claimName: {{ .Values.prefix }}-{{ .Values.notary.worker }}-notary-certificates
       - name: notary-logs
         persistentVolumeClaim:
-          claimName: {{ .Values.prefix }}-notary-logs
+          claimName: {{ .Values.prefix }}-{{ .Values.notary.worker }}-notary-logs
       - name: notary-nodeinfo
         persistentVolumeClaim:
           claimName: {{ .Values.prefix }}-notary-nodeinfo
       - name: notary-h2
         persistentVolumeClaim:
-          claimName: {{ .Values.prefix }}-notary-h2
+          claimName: {{ .Values.prefix }}-{{ .Values.notary.worker }}-notary-h2
       - name: pki-certs-keys
         persistentVolumeClaim:
           claimName: {{ .Values.prefix }}-pki-certs-keys
