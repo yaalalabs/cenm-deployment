@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.prefix }}-cockroachdb-conf
+  labels:
+{{ include "cockroachdb.labels" . | indent 4 }}
+data:
+  db-setup.sql: |+
+{{ tpl (.Files.Get "files/db-setup.sql") . | indent 4 }}

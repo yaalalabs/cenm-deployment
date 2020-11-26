@@ -62,3 +62,24 @@ Return the appropriate apiVersion for StatefulSets
     {{- print "apps/v1" -}}
 {{- end -}}
 {{- end -}}
+
+
+{{/*
+Common labels
+*/}}
+{{- define "cockroachdb.labels" -}}
+helm.sh/chart: {{ include "cockroachdb.chart" . }}
+{{ include "cockroachdb.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+{{/*
+Selector labels
+*/}}
+{{- define "cockroachdb.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "cockroachdb.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end -}}

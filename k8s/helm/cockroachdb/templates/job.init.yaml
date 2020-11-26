@@ -126,6 +126,53 @@ spec:
         {{- with .Values.init.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+        - name: db-setup
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          # Run the command in an `while true` loop because this Job is bound
+          # to come up before the CockroachDB Pods (due to the time needed to
+          # get PersistentVolumes attached to Nodes), and sleeping 5 seconds
+          # between attempts is much better than letting the Pod fail when
+          # the init command does and waiting out Kubernetes' non-configurable
+          # exponential back-off for Pod restarts.
+          # Command completes either when cluster initialization succeeds,
+          # or when cluster has been initialized already.
+          command:
+            - /bin/bash
+            - -c
+            - >-
+              while true; do
+              initOUT=$(set -x;
+              /cockroach/cockroach sql
+              {{- if .Values.tls.enabled }}
+              --certs-dir=/cockroach-certs/
+              {{- else }}
+              --insecure
+              {{- end }}
+              {{- with index .Values.conf "cluster-name" }}
+              --cluster-name={{.}}
+              {{- end }}
+              --host={{ template "cockroachdb.fullname" . }}-0.{{ template "cockroachdb.fullname" . -}}
+                     :{{ .Values.service.ports.grpc.internal.port | int64 }} < /CM-FILES/db-setup.sql
+              2>&1);
+              initRC="$?";
+              echo $initOUT;
+              [[ "$initRC" == "0" ]] && exit 0;
+              [[ "$initOUT" == *"cluster has already been initialized"* ]] && exit 0;
+              sleep 5;
+              done
+          volumeMounts:
+          {{- if .Values.tls.enabled }}
+            - name: client-certs
+              mountPath: /cockroach-certs/
+          {{- end }}
+            - name: cockroachdb-conf
+              mountPath: /CM-FILES/db-setup.sql
+              subPath: db-setup.sql
+        {{- with .Values.init.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+        {{- end }}
+
     {{- if .Values.tls.enabled }}
       volumes:
         - name: client-certs
@@ -153,5 +200,8 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+        - name: cockroachdb-conf
+          configMap:
+            name: {{ .Values.prefix }}-cockroachdb-conf
     {{- end }}
 {{- end }}
