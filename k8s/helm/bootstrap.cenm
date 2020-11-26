@@ -291,7 +291,7 @@ helm install "${releasePrefix}"-notary-service notary-service --set notaryPublic
 announce "Bootstrapping Notary workers"
 for worker in {1..2}
 do
-    printf "COMMAND: helm install %s-notary-%s notary --set notaryPublicIP=%s --set prefix=%s --set mpv=%s --set acceptLicense=%s --set notary.worker=%s --set cockroachDB.host=%s\n\n" "${releasePrefix}" "${notaryPublicIP}" "${releasePrefix}" "${minimumPV}" "${acceptLicense}" "${worker}" "${cockroachDBPublicIP}"
+    printf "COMMAND: helm install %s-%s-notary notary --set notaryPublicIP=%s --set prefix=%s --set mpv=%s --set acceptLicense=%s --set notary.worker=%s --set cockroachDB.host=%s\n\n" "${releasePrefix}" "${worker}" "${notaryPublicIP}" "${releasePrefix}" "${minimumPV}" "${acceptLicense}" "${worker}" "${cockroachDBPublicIP}"
     helm install "${releasePrefix}"-"${worker}"-notary notary --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}" --set notary.worker="${worker}" --set cockroachDB.host="${cockroachDBPublicIP}"
    echo "Welcome $i times"
 done
