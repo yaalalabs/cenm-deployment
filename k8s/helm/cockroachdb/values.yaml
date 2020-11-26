@@ -400,3 +400,8 @@ networkPolicy:
       # - namespaceSelector:
       #     matchLabels:
       #       project: my-project
+
+cenm:
+  user: cenm
+  storageClassShared: cenm-shared
+

@@ -269,7 +269,7 @@ fi
 
 announce "Bootstrapping CockroachDB cluster"
 printf "COMMAND: helm install %s-cockroachdb cockroachdb --set prefix=%s --set service.sourceRanges=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${lbSourceRanges}" 
-helm install "${releasePrefix}"-cockroachdb cockroachdb --set prefix="${ releasePrefix }" --set service.sourceRanges="${lbSourceRanges}"
+helm install "${releasePrefix}"-cockroachdb cockroachdb --set prefix="${releasePrefix}" --set service.sourceRanges="${lbSourceRanges}"
 
 while [ -z "${cockroachDBPublicIP}" ]
 do
@@ -280,7 +280,7 @@ do
         printf "."
         sleep 5
     else
-        printf "\cockroachDBPublicIP = %s\n" "${cockroachDBPublicIP}"
+        printf "\ncockroachDBPublicIP = %s\n" "${cockroachDBPublicIP}"
     fi
 done
 

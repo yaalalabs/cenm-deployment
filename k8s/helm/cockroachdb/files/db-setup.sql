@@ -33,11 +33,11 @@ create table corda.notary_double_spends (
 
 -- Grant permissions
 
-create user if not exists cenm;
+create user if not exists {{ .Values.cenm.user }};
 
-grant select on database corda to cenm;
-grant insert on database corda to cenm;
+grant select on database corda to {{ .Values.cenm.user }};
+grant insert on database corda to {{ .Values.cenm.user }};
 
-grant select on table corda.* to cenm;
-grant insert on table corda.* to cenm;
+grant select on table corda.* to {{ .Values.cenm.user }};
+grant insert on table corda.* to {{ .Values.cenm.user }};
 

@@ -96,6 +96,8 @@ spec:
             mountPath: /opt/cenm/h2
           - name: pki-certs-keys
             mountPath: /opt/cenm/DATA
+          - name: cockroachdb-certs
+            mountPath: /opt/cenm/cockroachdb-certs
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
             tcpSocket:
@@ -158,6 +160,10 @@ spec:
       - name: pki-certs-keys
         persistentVolumeClaim:
           claimName: {{ .Values.prefix }}-pki-certs-keys
+      - name: cockroachdb-certs
+        persistentVolumeClaims:
+          claimName: {{ .Values.prefix }}-cockroachdb-certs
+      
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
