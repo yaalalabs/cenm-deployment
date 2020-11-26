@@ -37,6 +37,16 @@ spec:
           volumeMounts:
           - name: cockroachdb-certs
             mountPath: /cockroach-certs
+        - name: transform-certs
+          image: "alpine/openssl:latest"
+          imagePullPolicy: {{ .Values.cockroachDBRequestCertDockerImage.pullPolicy }}
+          command:
+          - "/bin/ash"
+          - "-ecx"
+          - "openssl pkcs8 -topk8 -inform PEM -outform DER -in /cockroach-certs/client.{{ .Values.user }}.key -out /cockroach-certs/client.{{ .Values.user }}.pk8 -nocrypt"
+          volumeMounts:
+          - name: cockroachdb-certs
+            mountPath: /cockroach-certs
         - name: init-registration
           env:
             - name: ACCEPT_LICENSE
