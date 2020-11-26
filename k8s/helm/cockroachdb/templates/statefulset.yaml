@@ -283,7 +283,7 @@ spec:
         - name: datadir
         {{- if .Values.storage.persistentVolume.enabled }}
           persistentVolumeClaim:
-            claimName: {{ .Values.prefix }}-cockroachdb-datadir
+            claimName: datadir
         {{- else if .Values.storage.hostPath }}
           hostPath:
             path: {{ .Values.storage.hostPath | quote }}
@@ -325,7 +325,7 @@ spec:
 {{- if .Values.storage.persistentVolume.enabled }}
   volumeClaimTemplates:
     - metadata:
-        name: {{ .Values.prefix }}-cockroachdb-datadir
+        name: datadir
         labels:
           app.kubernetes.io/name: {{ template "cockroachdb.name" . }}
           app.kubernetes.io/instance: {{ .Release.Name | quote }}
