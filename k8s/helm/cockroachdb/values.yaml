@@ -403,5 +403,3 @@ networkPolicy:
 
 cenm:
   user: cenm
-  storageClassShared: cenm-shared
-
