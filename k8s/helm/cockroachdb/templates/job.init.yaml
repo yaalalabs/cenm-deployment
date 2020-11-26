@@ -172,6 +172,28 @@ spec:
         {{- with .Values.init.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+        - name: init-{{ .Values.cenm.user }}-certs
+          image: "{{ .Values.tls.init.image.repository }}:{{ .Values.tls.init.image.tag }}"
+          imagePullPolicy: {{ .Values.tls.init.image.pullPolicy | quote }}
+          command:
+            - /bin/ash
+            - -ecx
+            - >-
+              /request-cert
+              -namespace=${POD_NAMESPACE}
+              -certs-dir=/cockroach-{{ .Values.cenm.user }}-certs/
+              -symlink-ca-from=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+              -type=client
+              -user={{ .Values.cenm.user }}
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          volumeMounts:
+            - name: {{ .Values.prefix }}-cockroachdb-certs
+              mountPath: /cockroach-{{ .Values.cenm.user }}-certs/
+
     {{- if .Values.tls.enabled }}
       volumes:
         - name: client-certs
@@ -199,6 +221,8 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+        - name: {{ .Values.prefix }}-cockroachdb-certs
+          emptyDir: {}
         - name: cockroachdb-conf
           configMap:
             name: {{ .Values.prefix }}-cockroachdb-conf

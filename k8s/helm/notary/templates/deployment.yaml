@@ -22,21 +22,6 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
-        - name: init-certs
-          image: "{{ required "notary[certs]: missing value for .Values.cockroachDBRequestCertDockerImage.name" .Values.cockroachDBRequestCertDockerImage.name }}:{{ required "notary[certs]: missing value for .Values.cockroachDBRequestCertDockerImage.tag" .Values.cockroachDBRequestCertDockerImage.tag }}"
-          imagePullPolicy: {{ .Values.cockroachDBRequestCertDockerImage.pullPolicy }}
-          command:
-          - "/bin/ash"
-          - "-ecx"
-          - "/request-cert -namespace=${POD_NAMESPACE} -certs-dir=/cockroach-certs -type=client -user={{ .Values.user }} -symlink-ca-from=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-          env:
-          - name: POD_NAMESPACE
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace
-          volumeMounts:
-          - name: cockroachdb-certs
-            mountPath: /cockroach-certs
         - name: init-registration
           env:
             - name: ACCEPT_LICENSE
@@ -176,7 +161,8 @@ spec:
         persistentVolumeClaim:
           claimName: {{ .Values.prefix }}-pki-certs-keys
       - name: cockroachdb-certs
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: {{ .Values.prefix }}-cockroachdb-certs
       
       {{- with .Values.nodeSelector }}
       nodeSelector:

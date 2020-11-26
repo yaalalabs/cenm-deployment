@@ -11,11 +11,6 @@ dockerImage:
   tag: latest
   pullPolicy: IfNotPresent
 
-cockroachDBRequestCertDockerImage:
-  name: cockroachdb/cockroach-k8s-request-cert
-  tag: 0.4
-  pullPolicy: IfNotPresent
-
 # Volume size for Notary bin/ directory
 volumeSizeNotaryBin: 2Gi
 
