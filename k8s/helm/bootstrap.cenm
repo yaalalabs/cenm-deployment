@@ -12,7 +12,7 @@ Usage: ${0##*/} ...
     -m|--mpv [version]          the minimum platform version for your network
     --ACCEPT_LICENSE [YES]      agree to the Licenses for Components deployed by the Bootstrapper.
     -a|--auto                   complete script without further prompts to the 
-    -c|--cockroachdb            include cockroachdb cluster in the deployment
+    -nw|--notary_workers        provide number of notary workers
     -ad|--auth_db               provide auth database url
     -zd|--zone_db               provide zone database url
     -id|--idman_db              provide idman database url
@@ -54,8 +54,8 @@ do
             auto=True
             shift
             ;;
-        -c|--cockroachdb)
-            deployCockroachDBCluster=True
+        -nw|--notary_workers)
+            notaryWorkers="${2}"
             shift
             shift
             ;;
@@ -289,7 +289,7 @@ printf "COMMAND: helm install %s-notary-service notary-service --set notaryPubli
 helm install "${releasePrefix}"-notary-service notary-service --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}" --set cockroachDB.host="${cockroachDBPublicIP}"
 
 announce "Bootstrapping Notary workers"
-for worker in {1..2}
+for worker in {1..${notaryWorkers}}
 do
     printf "COMMAND: helm install %s-%s-notary notary --set notaryPublicIP=%s --set prefix=%s --set mpv=%s --set acceptLicense=%s --set notary.worker=%s --set cockroachDB.host=%s\n\n" "${releasePrefix}" "${worker}" "${notaryPublicIP}" "${releasePrefix}" "${minimumPV}" "${acceptLicense}" "${worker}" "${cockroachDBPublicIP}"
     helm install "${releasePrefix}"-"${worker}"-notary notary --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}" --set notary.worker="${worker}" --set cockroachDB.host="${cockroachDBPublicIP}"
