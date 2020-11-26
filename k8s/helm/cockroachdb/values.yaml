@@ -310,7 +310,7 @@ storage:
     # Additional annotations to apply to the created PersistentVolumeClaims.
     annotations: {}
 
-
+certVolumeSize: 1Gi
 # Kubernetes Job which initializes multi-node CockroachDB cluster.
 # It's not created if `statefulset.replicas` is `1`.
 init:

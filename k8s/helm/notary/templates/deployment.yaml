@@ -161,7 +161,7 @@ spec:
         persistentVolumeClaim:
           claimName: {{ .Values.prefix }}-pki-certs-keys
       - name: cockroachdb-certs
-        persistentVolumeClaims:
+        persistentVolumeClaim:
           claimName: {{ .Values.prefix }}-cockroachdb-certs
       
       {{- with .Values.nodeSelector }}

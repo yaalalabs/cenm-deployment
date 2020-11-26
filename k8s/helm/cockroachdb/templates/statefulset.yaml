@@ -246,7 +246,7 @@ spec:
               containerPort: {{ index .Values.conf `http-port` | int64 }}
               protocol: TCP
           volumeMounts:
-            - name: {{ .Values.prefix }}-cockroachdb-datadir
+            - name: datadir
               mountPath: /cockroach/cockroach-data/
           {{- if .Values.tls.enabled }}
             - name: certs
@@ -280,7 +280,7 @@ spec:
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
       volumes:
-        - name: {{ .Values.prefix }}-cockroachdb-datadir
+        - name: datadir
         {{- if .Values.storage.persistentVolume.enabled }}
           persistentVolumeClaim:
             claimName: {{ .Values.prefix }}-cockroachdb-datadir
@@ -322,3 +322,32 @@ spec:
           secret:
             secretName: {{ . | quote }}
       {{- end }}
+{{- if .Values.storage.persistentVolume.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Values.prefix }}-cockroachdb-datadir
+        labels:
+          app.kubernetes.io/name: {{ template "cockroachdb.name" . }}
+          app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        {{- with .Values.storage.persistentVolume.labels }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.labels }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- with .Values.storage.persistentVolume.annotations }}
+        annotations: {{- toYaml . | nindent 10 }}
+      {{- end }}
+      spec:
+        accessModes: ["ReadWriteOnce"]
+      {{- if .Values.storage.persistentVolume.storageClass }}
+      {{- if (eq "-" .Values.storage.persistentVolume.storageClass) }}
+        storageClassName: ""
+      {{- else }}
+        storageClassName: {{ .Values.storage.persistentVolume.storageClass | quote}}
+      {{- end }}
+      {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.storage.persistentVolume.size | quote }}
+{{- end }}
