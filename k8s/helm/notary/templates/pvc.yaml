@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.prefix }}-notary-etc
+  name: {{ .Values.prefix }}-{{ .Values.notary.worker }}-notary-etc
 spec:
   accessModes:
     - ReadWriteOnce
@@ -15,20 +15,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.prefix }}-notary-nodeinfo
-spec:
-  accessModes:
-    - ReadWriteMany
-  storageClassName: {{ .Values.storageClassShared }}
-  resources:
-    requests:
-      storage: {{ .Values.volumeSizeNotaryNodeinfo }}
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ .Values.prefix }}-notary-certificates
+  name: {{ .Values.prefix }}-{{ .Values.notary.worker }}-notary-certificates
 spec:
   accessModes:
     - ReadWriteOnce
@@ -41,7 +28,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.prefix }}-notary-logs
+  name: {{ .Values.prefix }}-{{ .Values.notary.worker }}-notary-logs
 spec:
   accessModes:
     - ReadWriteOnce
@@ -54,7 +41,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.prefix }}-notary-h2
+  name: {{ .Values.prefix }}-{{ .Values.notary.worker }}-notary-h2
 spec:
   accessModes:
     - ReadWriteOnce

@@ -9,12 +9,12 @@ bashDebug: false
 signerImage:
   repository: corda/enterprise-signer
   tag: 1.4.0-zulu-openjdk8u242
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 dockerImageCli:
   repository: corda/enterprise-cli
   tag: 1.4.0-zulu-openjdk8u242
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 # Volume size for the etc/ directory
 volumeSizeSignerEtc: 1Mi

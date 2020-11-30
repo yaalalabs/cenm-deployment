@@ -11,7 +11,15 @@ Usage: ${0##*/} ...
     -p|--prefix [prefix]        specify release prefix for all Helm charts
     -m|--mpv [version]          the minimum platform version for your network
     --ACCEPT_LICENSE [YES]      agree to the Licenses for Components deployed by the Bootstrapper.
-    -a|--auto                   complete script without further prompts to the user
+    -a|--auto                   complete script without further prompts to the 
+    -nw|--notary_workers        provide number of notary workers
+    -ad|--auth_db               provide auth database url
+    -zd|--zone_db               provide zone database url
+    -id|--idman_db              provide idman database url
+    -nd|--nmap_db               provide nmap database url
+    -du|--db_admin              provide database admin user password
+    -dp|--db_pwd                provide database admin password
+    -ls|--lb_source             provide load balancer source range          
 EOF
 }
 
@@ -38,19 +46,59 @@ do
             shift
             ;;
         -m|--mpv)
-          minimumPV="${2}"
-          shift
-          shift
+            minimumPV="${2}"
+            shift
+            shift
           ;;
         -a|--auto)
             auto=True
             shift
             ;;
+        -nw|--notary_workers)
+            notaryWorkers="${2}"
+            shift
+            shift
+            ;;
+        -ad|--auth_db)
+            authDBHost="${2}"
+            shift
+            shift
+            ;;
+        -zd|--zone_db)
+            zoneDBHost="${2}"
+            shift
+            shift
+            ;;
+        -id|--idman_db)
+            idmanDBHost="${2}"
+            shift
+            shift
+            ;;
+        -nd|--nmap_db)
+            nmapDBHost="${2}"
+            shift
+            shift
+            ;;
+        -du|--db_admin)
+            dbAdminUser="${2}"
+            shift
+            shift
+            ;;
+        -dp|--db_pwd)
+            dbAdminPassword="${2}"
+            shift
+            shift
+            ;;
+        -ls|--lb_source)
+            lbSourceRanges="{${2}}"
+            shift
+            shift
+            ;;
         --ACCEPT_LICENSE)
-          acceptLicense="${2}"
-          shift
-          shift
-          ;;
+            acceptLicense="${2}"
+            shift
+            shift
+            ;;
         *)
             print_help
             exit
@@ -121,8 +169,8 @@ then
     idmanServiceAllocate=true
     idmanServiceName="${releasePrefix}"-idman-ip
     announce "Triggering public IP allocation for Identity Manager"
-    printf "COMMAND: helm install %s-idman-ip idman-ip --set prefix=%s\n\n" "${releasePrefix}" "${releasePrefix}"
-    helm install "${releasePrefix}"-idman-ip idman-ip --set prefix="${releasePrefix}"
+    printf "COMMAND: helm install %s-idman-ip idman-ip --set prefix=%s --set service.sourceRanges=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${lbSourceRanges}"
+    helm install "${releasePrefix}"-idman-ip idman-ip --set prefix="${releasePrefix}" --set service.sourceRanges="${lbSourceRanges}"
 fi
 
 if [ -z "${notaryServiceName}" ]
@@ -130,8 +178,8 @@ then
     notaryServiceAllocate=true
     notaryServiceName="${releasePrefix}"-notary-ip
     announce "Triggering public IP allocation for Notary"
-    printf "COMMAND: helm install %s-notary-ip notary-ip --set prefix=%s\n\n" "${releasePrefix}" "${releasePrefix}"
-    helm install "${releasePrefix}"-notary-ip notary-ip --set prefix="${releasePrefix}"
+    printf "COMMAND: helm install %s-notary-ip notary-ip --set prefix=%s --set service.sourceRanges=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${lbSourceRanges}"
+    helm install "${releasePrefix}"-notary-ip notary-ip --set prefix="${releasePrefix}" --set service.sourceRanges="${lbSourceRanges}"
 fi
 
 # Run HSM helm chart first to give more time for IP allocation for Identity Manager above
@@ -173,24 +221,24 @@ printf "COMMAND: helm install %s-pki pki --set idmanPublicIP=%s --set prefix=%s 
 helm install "${releasePrefix}"-pki pki --set idmanPublicIP="${idmanPublicIP}" --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set hsm="${hsm}"
 
 announce "Bootstrapping CENM Auth service"
-printf "COMMAND: helm install %s-auth auth --set prefix=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}"
-helm install "${releasePrefix}"-auth auth --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}"
+printf "COMMAND: helm install %s-auth auth --set prefix=%s --set acceptLicense=%s --set database.url=%s --set database.user=%s --set database.password=<hidden>\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}" "${authDBHost}" "${dbAdminUser}"
+helm install "${releasePrefix}"-auth auth --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set database.url="${authDBHost}" --set database.user="${dbAdminUser}" --set database.password="${dbAdminPassword}"
 
 announce "Bootstrapping CENM Gateway service"
-printf "COMMAND: helm install %s-gateway gateway --set prefix=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}"
-helm install "${releasePrefix}"-gateway gateway --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}"
+printf "COMMAND: helm install %s-gateway gateway --set prefix=%s --set acceptLicense=%s --set service.sourceRanges=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}" "${lbSourceRanges}"
+helm install "${releasePrefix}"-gateway gateway --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set service.sourceRanges="${lbSourceRanges}"
 
 announce "Bootstrapping CENM Zone service"
-printf "COMMAND: helm install %s-zone zone --set prefix=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}"
-helm install "${releasePrefix}"-zone zone --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}"
+printf "COMMAND: helm install %s-zone zone --set prefix=%s --set acceptLicense=%s --set database.url=%s --set database.user=%s --set database.password=<hidden>\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}" "${zoneDBHost}" "${dbAdminUser}"
+helm install "${releasePrefix}"-zone zone --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set database.url="${zoneDBHost}" --set database.user="${dbAdminUser}" --set database.password="${dbAdminPassword}"
 
 announce "Bootstrapping CENM Signer service"
 printf "COMMAND: helm install %s-signer signer --set idmanPublicIP=%s --set prefix=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${idmanPublicIP}" "${releasePrefix}" "${acceptLicense}"
 helm install "${releasePrefix}"-signer signer --set idmanPublicIP="${idmanPublicIP}" --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set hsm="${hsm}"
 
 announce "Bootstrapping CENM Identity Manager service"
-printf "COMMAND: helm install %s-idman idman --set prefix=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}"
-helm install "${releasePrefix}"-idman idman --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}"
+printf "COMMAND: helm install %s-idman idman --set prefix=%s --set acceptLicense=%s --set database.url=%s --set database.user=%s --set database.password=<hidden>\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}" "${idmanDBHost}" "${dbAdminUser}"
+helm install "${releasePrefix}"-idman idman --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set database.url="${idmanDBHost}" --set database.user="${dbAdminUser}" --set database.password="${dbAdminPassword}"
 
 if [ "${notaryServiceAllocate}" == "true" ]
 then
@@ -219,13 +267,39 @@ then
     printf "Public IP allocation elapsed time: %s seconds (~ %s minutes)\n\n" "$((elapsedTime))" "$((elapsedTime/60%60))"
 fi
 
+announce "Bootstrapping CockroachDB cluster"
+printf "COMMAND: helm install %s-cockroachdb cockroachdb --set prefix=%s --set service.sourceRanges=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${lbSourceRanges}" 
+helm install "${releasePrefix}"-cockroachdb cockroachdb --set prefix="${releasePrefix}" --set service.sourceRanges="${lbSourceRanges}"
+
+while [ -z "${cockroachDBPublicIP}" ]
+do
+    cockroachDBPublicIP=$(kubectl get svc "${releasePrefix}"-cockroachdb-public -o jsonpath='{.status.loadBalancer.ingress[0].*}')
+    # if cockroachDBPublicIP has some value don't print anything on the screen
+    if [ -z "${cockroachDBPublicIP}" ]
+    then
+        printf "."
+        sleep 5
+    else
+        printf "\ncockroachDBPublicIP = %s\n" "${cockroachDBPublicIP}"
+    fi
+done
+
 announce "Bootstrapping Notary service"
-printf "COMMAND: helm install %s-notary notary --set notaryPublicIP=%s --set prefix=%s --set mpv=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${notaryPublicIP}" "${releasePrefix}" "${minimumPV}" "${acceptLicense}"
-helm install "${releasePrefix}"-notary notary --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}"
+printf "COMMAND: helm install %s-notary-service notary-service --set notaryPublicIP=%s --set prefix=%s --set mpv=%s --set acceptLicense=%s --set cockroachDB.host=%s\n\n" "${releasePrefix}" "${notaryPublicIP}" "${releasePrefix}" "${minimumPV}" "${acceptLicense}" "${cockroachDBPublicIP}"
+helm install "${releasePrefix}"-notary-service notary-service --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}" --set cockroachDB.host="${cockroachDBPublicIP}"
+
+announce "Bootstrapping Notary workers"
+for (( worker=1; worker<=${notaryWorkers}; worker++ ))
+do
+    printf "COMMAND: helm install %s-%s-notary notary --set notaryPublicIP=%s --set prefix=%s --set mpv=%s --set acceptLicense=%s --set notary.worker=%s --set cockroachDB.host=%s\n\n" "${releasePrefix}" "${worker}" "${notaryPublicIP}" "${releasePrefix}" "${minimumPV}" "${acceptLicense}" "${worker}" "${cockroachDBPublicIP}"
+    helm install "${releasePrefix}"-"${worker}"-notary notary --set notaryPublicIP="${notaryPublicIP}" --set prefix="${releasePrefix}" --set mpv="${minimumPV}" --set acceptLicense="${acceptLicense}" --set notary.worker="${worker}" --set cockroachDB.host="${cockroachDBPublicIP}"
+   echo "Welcome $i times"
+done
+
 
 announce "Bootstrapping CENM Network Map service"
-printf "COMMAND: helm install %s-nmap nmap --set prefix=%s --set acceptLicense=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}" 
-helm install "${releasePrefix}"-nmap nmap --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}"
+printf "COMMAND: helm install %s-nmap nmap --set prefix=%s --set acceptLicense=%s --set database.url=%s --set database.user=%s --set database.password=<hidden> --set service.sourceRanges=%s\n\n" "${releasePrefix}" "${releasePrefix}" "${acceptLicense}" "${nmapDBHost}" "${dbAdminUser}" "${lbSourceRanges}"
+helm install "${releasePrefix}"-nmap nmap --set prefix="${releasePrefix}" --set acceptLicense="${acceptLicense}" --set database.url="${nmapDBHost}" --set database.user="${dbAdminUser}" --set database.password="${dbAdminPassword}" --set service.sourceRanges="${lbSourceRanges}"
 
 announce "Waiting until cloud provider has allocated public IP for CLI endpoint (it may take a few minutes)"
 gatewayStartTime=${SECONDS}

@@ -9,22 +9,19 @@ bashDebug: false
 authImage:
   repository: corda/enterprise-auth
   tag: 1.0.1-zulu-openjdk8u242
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
-# Configuration for database
+# Configuration for postgresql database
 database:
-  driverClassName: "org.h2.Driver"
-  jdbcDriver: ""
-  url: "jdbc:h2:file:./h2/auth-persistence;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=10000;WRITE_DELAY=0;AUTO_SERVER_PORT=0"
-  user: "testuser"
-  password: "password"
+  driverClassName: "org.postgresql.Driver"
+  jdbcDriver: "/opt/cenm/drivers/postgresql-42.2.12.jar"
+  url: "jdbc:postgresql://<host>:<port>/auth_persistence_1"
+  user: "<admin_user>"
+  password: "<admin_pwd>"
   runMigration: true
 
 # Volume size for etc/ directory
 volumeSizeAuthEtc: 1Gi
-
-# Volume size for h2/ directory
-volumeSizeAuthH2: 5Gi
 
 # Volume size for logs/ directory
 volumeSizeAuthLogs: 5Gi

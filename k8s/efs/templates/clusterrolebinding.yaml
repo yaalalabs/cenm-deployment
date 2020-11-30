@@ -1,0 +1,14 @@
+{{- if .Values.rbac.create }}
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: run-{{ include "efs.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "efs.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name:  {{ include "efs.fullname" . }}-runner
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

@@ -88,8 +88,6 @@ spec:
             mountPath: /opt/cenm/etc
           - name: auth-logs
             mountPath: /opt/cenm/logs
-          - name: auth-h2
-            mountPath: /opt/cenm/h2
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
             tcpSocket:
@@ -142,9 +140,6 @@ spec:
         - name: auth-etc
           persistentVolumeClaim:
             claimName: {{ .Values.prefix }}-auth-etc
-        - name: auth-h2
-          persistentVolumeClaim:
-            claimName: {{ .Values.prefix }}-auth-h2
         - name: auth-logs
           persistentVolumeClaim:
             claimName: {{ .Values.prefix }}-auth-logs

@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.prefix }}-notary-conf
+  name: {{ .Values.prefix }}-{{ .Values.notary.worker }}-notary-conf
   labels:
     {{ include "notary.labels" . | nindent 4 }}
 data:
@@ -11,9 +11,6 @@ data:
 
   notary-initial-registration.sh: |+
     {{ tpl (.Files.Get "files/notary-initial-registration.sh") . | nindent 4 }}
-
-  create-network-parameters-file.sh: |+
-    {{ tpl (.Files.Get "files/create-network-parameters-file.sh") . | nindent 4 }}
 
   notary.conf: |+
     {{ tpl (.Files.Get "files/notary.conf") . | nindent 4 }}

@@ -7,9 +7,14 @@ bashDebug: false
 
 # Docker images to use by the Notary Helm chart
 dockerImage:
-  name: corda/enterprise-notary
-  tag: 4.5.1-zulu-openjdk8u242
-  pullPolicy: Always
+  name: koumudi/enterprise-notary
+  tag: latest
+  pullPolicy: IfNotPresent
+
+cockroachDBRequestCertDockerImage:
+  name: cockroachdb/cockroach-k8s-request-cert
+  tag: 0.4
+  pullPolicy: IfNotPresent
 
 # Volume size for Notary bin/ directory
 volumeSizeNotaryBin: 2Gi
@@ -72,6 +77,13 @@ dataSourceProperties:
 # Type of Notary
 notary:
   validating: false
+  serviceLegalName: "O=HA Notary Service,L=Zurich,C=CH"
+  worker: 1
+
+cockroachDB: 
+  host: "10.1.59.77"
+  port: 26257
+  database: "corda"
 
 # Public IP for Notary (required parameter)
 notaryPublicIP:
@@ -167,3 +179,8 @@ storageClassShared: cenm-shared
 storageClass: cenm
 
 healthCheckNodePort: 0
+
+cordapps:
+  signerKey: "0000000000000000000000000000000000000000000000000000000000000000"
+
+user: cenm

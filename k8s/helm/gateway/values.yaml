@@ -9,7 +9,7 @@ bashDebug: false
 gatewayImage:
   repository: corda/enterprise-gateway
   tag: 1.1.0-zulu-openjdk8u242
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 # Volume size for etc/ directory
 volumeSizeGatewayEtc: 1Gi
@@ -62,6 +62,8 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
+  sourceRanges:
+    - "10.1.0.0/16"
   type: LoadBalancer
   port: 8080
 

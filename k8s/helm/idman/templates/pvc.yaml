@@ -23,16 +23,3 @@ spec:
   resources:
     requests:
       storage: {{ .Values.volumeSizeIdmanLogs }}
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ .Values.prefix }}-idman-h2
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: {{ .Values.storageClass }}
-  resources:
-    requests:
-      storage: {{ .Values.volumeSizeIdmanH2 }}
